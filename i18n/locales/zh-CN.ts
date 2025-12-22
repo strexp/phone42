@@ -1,0 +1,57 @@
+import { zhHans } from "vuetify/locale";
+
+export default {
+  $vuetify: zhHans,
+  nav: {
+    dial: "拨号",
+    contacts: "联系人",
+    history: "记录",
+  },
+  status: {
+    connecting: "连接中...",
+    disconnected: "无服务",
+    calling: "正在呼叫...",
+    in_call: "通话中",
+    held: "通话保持",
+    connected: "已就绪",
+    unknown: "未知状态",
+  },
+  phone: {
+    input_number: "输入号码",
+    calling: "呼叫中...",
+    in_call: "通话中",
+  },
+  contacts: {
+    title: "联系人",
+    add: "添加联系人",
+    name: "名称",
+    number: "号码/SIP URI",
+    cancel: "取消",
+    save: "保存",
+  },
+  history: {
+    title: "通话记录",
+    no_records: "暂无记录",
+  },
+  settings: {
+    title: "终端设置",
+    save: "保存",
+    sip_account: "SIP 账户设置",
+    username: "用户名",
+    username_hint: "SIP 认证用户名",
+    password: "密码",
+    password_hint: "SIP 认证密码",
+    server: "服务器",
+    server_hint: "WebSocket URL",
+    domain: "域名",
+    domain_hint: "SIP Domain / Host",
+    sound: "声音设置",
+    keypad_tone: "按键音",
+    keypad_tone_hint: "拨号时播放 DTMF 音",
+    ringback_tone: "呼叫提示音",
+    ringback_tone_hint: "接通前播放“嘀嘀”声",
+    language: "语言设置",
+    language_select: "界面语言",
+    about: "关于",
+  },
+};

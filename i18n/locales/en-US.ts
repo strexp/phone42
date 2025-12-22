@@ -1,0 +1,57 @@
+import { en } from "vuetify/locale";
+
+export default {
+  $vuetify: en,
+  nav: {
+    dial: "Keypad",
+    contacts: "Contacts",
+    history: "History",
+  },
+  status: {
+    connecting: "Connecting...",
+    disconnected: "No Service",
+    calling: "Calling...",
+    in_call: "In Call",
+    held: "On Hold",
+    connected: "Ready",
+    unknown: "Unknown",
+  },
+  phone: {
+    input_number: "Enter Number",
+    calling: "Calling...",
+    in_call: "In Call",
+  },
+  contacts: {
+    title: "Contacts",
+    add: "Add Contact",
+    name: "Name",
+    number: "Number/SIP URI",
+    cancel: "Cancel",
+    save: "Save",
+  },
+  history: {
+    title: "Call History",
+    no_records: "No records",
+  },
+  settings: {
+    title: "Settings",
+    save: "Save",
+    sip_account: "SIP Account",
+    username: "Username",
+    username_hint: "SIP Auth Username",
+    password: "Password",
+    password_hint: "SIP Auth Password",
+    server: "Server",
+    server_hint: "WebSocket URL",
+    domain: "Domain",
+    domain_hint: "SIP Domain / Host",
+    sound: "Sound",
+    keypad_tone: "Keypad Tone",
+    keypad_tone_hint: "Play DTMF tones",
+    ringback_tone: "Ringback Tone",
+    ringback_tone_hint: "Play ringing sound",
+    language: "Language",
+    language_select: "Interface Language",
+    about: "About",
+  },
+};
