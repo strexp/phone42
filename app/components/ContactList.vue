@@ -51,9 +51,9 @@
                 ripple
             >
                 <template #prepend>
-                    <v-avatar color="grey-lighten-2" variant="flat">
+                    <v-avatar color="primary" variant="outlined">
                         <v-img v-if="contact.avatar" :src="contact.avatar" />
-                        <span v-else class="text-title-large text-primary">{{
+                        <span v-else class="text-title-large">{{
                             contact.name[0]?.toUpperCase()
                         }}</span>
                     </v-avatar>
@@ -70,15 +70,17 @@
                     <v-btn
                         v-if="!contact.isPreset"
                         icon="mdi-trash-can-outline"
-                        size="x-small"
+                        size="small"
                         variant="text"
                         color="grey"
+                        class="me-1"
                         @click.stop="store.removeContact(contact.id)"
                     />
-                    <v-icon
-                        color="success"
+                    <v-btn
                         icon="mdi-phone"
-                        class="ms-2"
+                        size="small"
+                        color="success"
+                        variant="tonal"
                         @click="callContact(contact.number)"
                     />
                 </template>

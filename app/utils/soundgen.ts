@@ -1,26 +1,75 @@
 import { DTMF_FREQUENCIES } from "@/config";
 
+interface Window {
+  AudioContext: typeof AudioContext;
+  webkitAudioContext: typeof AudioContext;
+}
+
 class SoundGenerator {
   private ctx: AudioContext | null = null;
   private ringbackInterval: number | null = null;
+  private activeOscillators: {
+    osc1: OscillatorNode;
+    osc2: OscillatorNode;
+    gainNode: GainNode;
+  } | null = null;
 
   private initCtx() {
     if (typeof window === "undefined") return;
     if (!this.ctx) {
-      this.ctx = new (window.AudioContext ||
-        (window as any).webkitAudioContext)();
+      this.ctx = new (
+        window.AudioContext || (window as unknown as Window).webkitAudioContext
+      )();
     }
     if (this.ctx.state === "suspended") {
       this.ctx.resume();
     }
   }
 
+  // short play
   playDTMF(key: string, duration = 0.2) {
     this.initCtx();
     if (!this.ctx || !DTMF_FREQUENCIES[key]) return;
-
     const [f1, f2] = DTMF_FREQUENCIES[key];
     this.playTone(f1, f2, duration);
+  }
+
+  // ui interact play start
+  startDTMF(key: string) {
+    this.initCtx();
+    if (!this.ctx || !DTMF_FREQUENCIES[key]) return;
+    this.stopDTMF();
+
+    const [f1, f2] = DTMF_FREQUENCIES[key];
+    const osc1 = this.ctx.createOscillator();
+    const osc2 = this.ctx.createOscillator();
+    const gainNode = this.ctx.createGain();
+
+    osc1.frequency.value = f1;
+    osc2.frequency.value = f2;
+    osc1.connect(gainNode);
+    osc2.connect(gainNode);
+    gainNode.connect(this.ctx.destination);
+
+    // smooth start
+    gainNode.gain.setValueAtTime(0, this.ctx.currentTime);
+    gainNode.gain.linearRampToValueAtTime(0.1, this.ctx.currentTime + 0.02);
+
+    osc1.start();
+    osc2.start();
+    this.activeOscillators = { osc1, osc2, gainNode };
+  }
+
+  // ui interact play end
+  stopDTMF() {
+    if (!this.activeOscillators || !this.ctx) return;
+    const { osc1, osc2, gainNode } = this.activeOscillators;
+
+    // smooth stop
+    gainNode.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 0.02);
+    osc1.stop(this.ctx.currentTime + 0.03);
+    osc2.stop(this.ctx.currentTime + 0.03);
+    this.activeOscillators = null;
   }
 
   startRingback() {
@@ -77,5 +126,4 @@ class SoundGenerator {
 }
 
 const soundGenerator = new SoundGenerator();
-
 export default soundGenerator;

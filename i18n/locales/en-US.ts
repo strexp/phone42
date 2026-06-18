@@ -20,6 +20,7 @@ export default {
     input_number: "Enter Number",
     calling: "Calling...",
     in_call: "In Call",
+    paste: "Tap to paste",
   },
   contacts: {
     title: "Contacts",

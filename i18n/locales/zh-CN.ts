@@ -20,6 +20,7 @@ export default {
     input_number: "输入号码",
     calling: "呼叫中...",
     in_call: "通话中",
+    paste: "点击粘贴",
   },
   contacts: {
     title: "联系人",
