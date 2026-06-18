@@ -1,13 +1,12 @@
 <template>
     <v-card flat class="h-100 d-flex flex-column">
         <v-card-title class="d-flex align-center py-3 flex-shrink-0">
-            <v-icon icon="mdi-history" class="me-2" />
+            <v-icon start icon="mdi-history" class="me-2" />
             {{ $t("history.title") }}
             <v-spacer />
             <v-btn
                 icon="mdi-delete-sweep"
                 variant="text"
-                size="small"
                 @click="store.clearHistory"
             />
         </v-card-title>

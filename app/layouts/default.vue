@@ -1,5 +1,8 @@
 <template>
-    <v-container class="fill-height justify-center pa-0" fluid>
+    <v-container
+        class="d-flex fill-height align-center justify-center pa-0"
+        fluid
+    >
         <v-card
             :width="isMobile ? '100%' : 380"
             :height="isMobile ? '100%' : 750"

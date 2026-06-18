@@ -10,16 +10,16 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
-    "@nuxt/eslint": "^1.12.1",
-    "@nuxtjs/i18n": "^10.2.1",
+    "@nuxt/eslint": "^1.16.0",
+    "@nuxtjs/i18n": "^10.4.0",
     "@pinia/nuxt": "^0.11.3",
-    "@vite-pwa/nuxt": "^1.1.0",
-    "eslint": "^9.39.2",
-    "nuxt": "^4.2.2",
+    "@vite-pwa/nuxt": "^1.1.1",
+    "eslint": "^10.5.0",
+    "nuxt": "^4.4.8",
     "pinia": "^3.0.4",
     "sip.js": "^0.21.2",
-    "vue": "^3.5.25",
-    "vue-router": "^4.6.4",
-    "vuetify-nuxt-module": "^0.19.1"
+    "vue": "^3.5.38",
+    "vue-router": "^5.1.0",
+    "vuetify-nuxt-module": "^0.19.5"
   }
 }

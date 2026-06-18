@@ -16,14 +16,14 @@ export const BRANDING = {
 export const PRESET_CONTACTS = [
   {
     name: "Gensokyo Echo Test",
-    number: "424008033001",
+    number: "+042408033001",
     isPreset: true,
   },
-  {
-    name: "Jerry Network",
-    number: "424036183618",
-    isPreset: true,
-  },
+  // {
+  //   name: "Jerry Network",
+  //   number: "424036183618",
+  //   isPreset: true,
+  // },
 ];
 
 export const DTMF_FREQUENCIES: Record<string, [number, number]> = {

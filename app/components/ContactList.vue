@@ -1,7 +1,7 @@
 <template>
     <v-card flat class="h-100 d-flex flex-column">
         <v-card-title class="d-flex align-center py-3">
-            <v-icon icon="mdi-account-group" class="me-2" />
+            <v-icon start icon="mdi-account-group" class="me-2" />
             {{ $t("contacts.title") }}
             <v-spacer />
             <v-dialog v-model="dialog" max-width="300">
@@ -9,7 +9,6 @@
                     <v-btn
                         icon="mdi-account-plus"
                         variant="text"
-                        size="small"
                         v-bind="props"
                     />
                 </template>
@@ -54,7 +53,7 @@
                 <template #prepend>
                     <v-avatar color="grey-lighten-2" variant="flat">
                         <v-img v-if="contact.avatar" :src="contact.avatar" />
-                        <span v-else class="text-h6 text-primary">{{
+                        <span v-else class="text-title-large text-primary">{{
                             contact.name[0]?.toUpperCase()
                         }}</span>
                     </v-avatar>

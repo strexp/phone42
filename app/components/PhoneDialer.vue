@@ -11,8 +11,8 @@
                 }}
             </div>
             <div
-                class="text-h4 font-weight-bold text-truncate"
-                style="direction: rtl; max-width: 90%"
+                class="text-headline-large font-weight-bold text-truncate"
+                style="max-width: 90%"
             >
                 {{
                     matchedContactName(sipclient.currentTarget.value) ||
@@ -25,7 +25,10 @@
             >
                 {{ sipclient.currentTarget.value }}
             </div>
-            <div class="text-h6 mt-1 text-primary" style="min-height: 24px">
+            <div
+                class="text-title-large mt-1 text-primary"
+                style="min-height: 24px"
+            >
                 {{ sipclient.dtmfLog.value }}
             </div>
         </template>
@@ -36,19 +39,21 @@
                 style="min-height: 80px"
             >
                 <span
-                    class="text-h3 font-weight-bold text-truncate"
-                    style="direction: rtl; max-width: 100%"
+                    class="text-headline-large font-weight-bold text-truncate"
+                    style="max-width: 100%"
                     >{{ inputNumber }}</span
                 >
                 <span
                     v-if="inputNumber && matchedContactName(inputNumber)"
-                    class="text-h6 text-primary mt-1"
+                    class="text-title-large text-primary mt-1"
                 >
                     {{ matchedContactName(inputNumber) }}
                 </span>
-                <span v-if="!inputNumber" class="text-h4 text-grey-lighten-2">{{
-                    $t("phone.input_number")
-                }}</span>
+                <span
+                    v-if="!inputNumber"
+                    class="text-headline-large text-grey-lighten-2"
+                    >{{ $t("phone.input_number") }}</span
+                >
             </div>
         </template>
     </div>
@@ -59,16 +64,16 @@
         class="mb-4 px-4"
         style="max-width: 320px; margin: 0 auto"
     >
-        <v-col v-for="key in keys" :key="key" cols="4" class="text-center">
+        <v-col v-for="key in keys" :key="key.main" cols="4" class="text-center">
             <v-btn
                 variant="tonal"
-                class="rounded-circle mb-2 text-h5"
+                class="rounded-circle mb-2 text-title-large"
                 height="70"
                 width="70"
                 :color="status === CallStatus.DISCONNECTED ? 'grey' : 'default'"
-                @click="pressKey(key)"
+                @click="pressKey(key.main)"
             >
-                {{ key }}
+                {{ key.main }}
             </v-btn>
         </v-col>
         <template v-if="isInCall || isCalling">
@@ -145,7 +150,20 @@ import soundGenerator from "@/utils/soundgen";
 import { useCallStore } from "@/stores/callstore";
 import { CallStatus } from "@/types/call";
 
-const keys = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "*", "0", "#"];
+const keys = [
+    { main: "1" },
+    { main: "2" },
+    { main: "3" },
+    { main: "4" },
+    { main: "5" },
+    { main: "6" },
+    { main: "7" },
+    { main: "8" },
+    { main: "9" },
+    { main: "*" },
+    { main: "0", long: "+" },
+    { main: "#" },
+];
 const isMuted = ref(false);
 const inputNumber = ref("");
 const callDuration = ref("00:00");
@@ -179,6 +197,7 @@ const pressKey = (key: string) => {
         if (inputNumber.value.length < 20) {
             inputNumber.value += key;
         }
+        if (inputNumber.value == "00") inputNumber.value = "+";
     }
 };
 

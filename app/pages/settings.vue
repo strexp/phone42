@@ -158,7 +158,7 @@
             <v-list-item>
                 <v-list-item-title class="text-caption text-grey text-center">
                     Gensokyo Telephony Network<br />
-                    v1.0.0
+                    v1.1.0
                 </v-list-item-title>
             </v-list-item>
         </v-list>
