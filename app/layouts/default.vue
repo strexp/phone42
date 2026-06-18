@@ -16,7 +16,7 @@
             >
                 <slot />
             </div>
-            <div v-if="!isMobile" class="bg-black py-1 d-flex justify-center">
+            <div v-if="!isMobile" class="py-1 d-flex justify-center">
                 <div
                     class="bg-grey-darken-3 rounded-pill"
                     style="width: 100px; height: 4px"

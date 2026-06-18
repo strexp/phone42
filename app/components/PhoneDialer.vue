@@ -52,7 +52,7 @@
                 </span>
 
                 <template v-if="!inputNumber">
-                    <span class="text-headline-large text-grey-lighten-2">{{
+                    <span class="text-headline-large">{{
                         $t("phone.input_number")
                     }}</span>
                     <span class="text-caption text-grey mt-1">{{

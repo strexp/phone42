@@ -53,6 +53,8 @@ export default {
     ringback_tone_hint: "接通前播放“嘀嘀”声",
     language: "语言设置",
     language_select: "界面语言",
+    theme: "主题设置",
+    theme_dark: "暗色模式",
     about: "关于",
   },
 };

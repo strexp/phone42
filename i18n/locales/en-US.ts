@@ -53,6 +53,8 @@ export default {
     ringback_tone_hint: "Play ringing sound",
     language: "Language",
     language_select: "Interface Language",
+    theme: "Theme",
+    theme_dark: "Dark Mode",
     about: "About",
   },
 };

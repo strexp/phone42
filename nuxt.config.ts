@@ -1,3 +1,4 @@
+import { md3 } from "vuetify/blueprints";
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   ssr: false,
@@ -55,6 +56,7 @@ export default defineNuxtConfig({
 
   vuetify: {
     vuetifyOptions: {
+      blueprint: md3,
       theme: {
         defaultTheme: "dark",
       },

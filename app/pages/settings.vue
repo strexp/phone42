@@ -55,6 +55,31 @@
             <v-divider class="my-3" />
 
             <v-list-subheader class="text-primary font-weight-bold">
+                {{ $t("settings.theme") }}
+            </v-list-subheader>
+
+            <v-list-item ripple @click="theme.toggle()">
+                <template #prepend>
+                    <v-icon icon="mdi-dialpad" color="grey" />
+                </template>
+                <v-list-item-title>{{
+                    $t("settings.theme_dark")
+                }}</v-list-item-title>
+                <template #append>
+                    <v-switch
+                        :value="theme.global.name.value == 'dark'"
+                        class="mr-2"
+                        color="primary"
+                        hide-details
+                        density="compact"
+                        @click.stop="theme.toggle()"
+                    />
+                </template>
+            </v-list-item>
+
+            <v-divider class="my-3" />
+
+            <v-list-subheader class="text-primary font-weight-bold">
                 {{ $t("settings.sip_account") }}
             </v-list-subheader>
 
@@ -156,7 +181,9 @@
             <v-divider class="my-3" />
 
             <v-list-item>
-                <v-list-item-title class="text-caption text-grey text-center">
+                <v-list-item-title
+                    class="text-label-small text-grey text-center"
+                >
                     Gensokyo Telephony Network<br />
                     v1.1.0
                 </v-list-item-title>
@@ -175,6 +202,8 @@ import { useCallStore } from "@/stores/callstore";
 import sipController from "@/utils/sipclient";
 import SettingItem from "@/components/SettingItem.vue";
 import { AppLang } from "~/types/lang";
+import { useTheme } from "vuetify";
+const theme = useTheme();
 
 const { setLocale } = useI18n();
 const store = useCallStore();
