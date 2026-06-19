@@ -29,10 +29,14 @@ export default {
     number: "Number/SIP URI",
     cancel: "Cancel",
     save: "Save",
+    duplicate: "Duplicate number",
   },
   history: {
     title: "Call History",
     no_records: "No records",
+    clear_confirm_title: "Clear History",
+    clear_confirm_text: "Are you sure you want to clear all history?",
+    clear: "Clear",
   },
   settings: {
     title: "Settings",

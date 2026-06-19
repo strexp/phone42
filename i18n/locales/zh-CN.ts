@@ -29,10 +29,14 @@ export default {
     number: "号码/SIP URI",
     cancel: "取消",
     save: "保存",
+    duplicate: "号码已存在",
   },
   history: {
     title: "通话记录",
     no_records: "暂无记录",
+    clear_confirm_title: "清除记录",
+    clear_confirm_text: "确定要清除所有通话记录吗？",
+    clear: "清除",
   },
   settings: {
     title: "终端设置",

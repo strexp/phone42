@@ -1,9 +1,9 @@
 <template>
     <div
-        class="flex-grow-1 d-flex flex-column justify-center align-center mt-md-8 mb-md-6 mb-4 mt-2 transition-all"
+        class="d-flex flex-column align-content-space-between justify-center align-center py-8 transition-all h-100"
     >
         <template v-if="isInCall || isCalling">
-            <div class="text-caption text-medium-emphasis mb-1">
+            <div class="text-caption text-medium-emphasis mb-4">
                 {{
                     isCalling
                         ? $t("phone.calling")
@@ -35,7 +35,7 @@
 
         <template v-else>
             <div
-                class="d-flex flex-column align-center justify-center w-100 px-4 number-display"
+                class="d-flex flex-column align-center justify-center w-100 px-4 mb-4 number-display"
                 style="min-height: 80px"
                 @click="handleDisplayClick"
             >
@@ -61,115 +61,126 @@
                 </template>
             </div>
         </template>
-    </div>
 
-    <v-row
-        dense
-        no-gutters
-        justify="center"
-        class="mb-4 px-4"
-        style="max-width: 320px; margin: 0 auto"
-    >
-        <v-col
-            v-for="key in keys"
-            :key="key.main"
-            cols="4"
-            class="text-center pa-1"
+        <v-row
+            density="compact"
+            no-gutters
+            align="end"
+            class="px-4 mb-4"
+            style="width: 360px"
         >
-            <v-btn
-                variant="tonal"
-                class="rounded-circle mb-2 dial-btn text-title-large"
-                height="70"
-                width="70"
-                :color="status === CallStatus.DISCONNECTED ? 'grey' : 'default'"
-                @pointerdown="startPress(key.main)"
-                @pointerup="endPress(key.main)"
-                @pointerleave="cancelPress"
-                @pointercancel="cancelPress"
-                @contextmenu.prevent
+            <v-col
+                v-for="key in keys"
+                v-show="!(isInCall || isCalling) || showDialpad"
+                :key="key.main"
+                cols="4"
+                class="text-center pa-1"
             >
-                <div class="d-flex flex-column align-center">
-                    <span v-if="key.long"> &nbsp; </span>
-                    <span class="text-h5 font-weight-bold">{{ key.main }}</span>
-                    <span
-                        v-if="key.long"
-                        class="text-caption text-grey text-none"
-                        style="margin-top: -4px"
-                    >
-                        {{ key.long }}
-                    </span>
-                </div>
-            </v-btn>
-        </v-col>
-        <template v-if="isInCall || isCalling">
-            <v-col cols="4" class="text-center mt-4">
                 <v-btn
-                    icon="mdi-microphone-off"
-                    size="large"
-                    variant="outlined"
-                    :color="isMuted ? 'error' : ''"
-                    @click="isMuted = sipclient.toggleMute()"
-                />
-            </v-col>
-            <v-col cols="4" class="text-center mt-4">
-                <v-btn
-                    icon="mdi-phone-hangup"
-                    size="x-large"
-                    color="error"
-                    elevation="6"
-                    @click="hangupAndClear"
-                />
-            </v-col>
-            <v-col cols="4" class="text-center mt-4">
-                <v-btn
-                    icon="mdi-pause"
-                    size="large"
-                    variant="outlined"
-                    :color="status === CallStatus.HELD ? 'warning' : ''"
-                    @click="sipclient.toggleHold()"
-                />
-            </v-col>
-        </template>
-
-        <template v-else>
-            <v-col cols="4" class="text-center mt-4">
-                <v-btn
-                    variant="text"
-                    class="rounded-circle mb-2"
+                    variant="tonal"
+                    class="rounded-circle mb-2 dial-btn text-title-large"
                     height="70"
                     width="70"
-                    icon="mdi-cog"
-                    to="/settings"
-                />
-            </v-col>
-            <v-col cols="4" class="text-center mt-4">
-                <v-btn
-                    icon="mdi-phone"
-                    size="x-large"
-                    color="success"
-                    elevation="6"
-                    :disabled="!canCall"
-                    @click="doCall"
-                />
-            </v-col>
-
-            <v-col cols="4" class="text-center mt-4">
-                <v-btn
-                    v-if="inputNumber.length > 0"
-                    variant="text"
-                    class="rounded-circle mb-2 dial-btn"
-                    height="70"
-                    width="70"
-                    icon="mdi-backspace-outline"
-                    @pointerdown="startBackspace"
-                    @pointerup="endBackspace"
-                    @pointerleave="cancelBackspace"
-                    @pointercancel="cancelBackspace"
+                    :color="
+                        status === CallStatus.DISCONNECTED ? 'grey' : 'default'
+                    "
+                    @pointerdown="startPress(key.main)"
+                    @pointerup="endPress(key.main)"
+                    @pointerleave="cancelPress"
+                    @pointercancel="cancelPress"
                     @contextmenu.prevent
-                />
+                >
+                    <div class="d-flex flex-column align-center">
+                        <span v-if="key.long"> &nbsp; </span>
+                        <span class="text-h5 font-weight-bold">{{
+                            key.main
+                        }}</span>
+                        <span
+                            v-if="key.long"
+                            class="text-caption text-grey text-none"
+                            style="margin-top: -4px"
+                        >
+                            {{ key.long }}
+                        </span>
+                    </div>
+                </v-btn>
             </v-col>
-        </template>
-    </v-row>
+        </v-row>
+        <v-row
+            density="compact"
+            no-gutters
+            align="end"
+            class="mb-4 px-4"
+            style="width: 360px"
+        >
+            <template v-if="isInCall || isCalling">
+                <v-col cols="4" class="text-center pa-1">
+                    <v-btn
+                        icon="mdi-microphone-off"
+                        size="x-large"
+                        variant="outlined"
+                        :color="isMuted ? 'error' : ''"
+                        @click="isMuted = sipclient.toggleMute()"
+                    />
+                </v-col>
+                <v-col cols="4" class="text-center pa-1">
+                    <v-btn
+                        icon="mdi-phone-hangup"
+                        size="x-large"
+                        color="error"
+                        elevation="6"
+                        @click="hangupAndClear"
+                    />
+                </v-col>
+                <v-col cols="4" class="text-center pa-1">
+                    <v-btn
+                        icon="mdi-dialpad"
+                        size="x-large"
+                        variant="outlined"
+                        :color="showDialpad ? 'primary' : ''"
+                        @click="showDialpad = !showDialpad"
+                    />
+                </v-col>
+            </template>
+
+            <template v-else>
+                <v-col cols="4" class="text-center pa-1">
+                    <v-btn
+                        variant="text"
+                        class="rounded-circle"
+                        size="x-large"
+                        icon="mdi-cog"
+                        to="/settings"
+                    />
+                </v-col>
+                <v-col cols="4" class="text-center pa-1">
+                    <v-btn
+                        icon="mdi-phone"
+                        size="x-large"
+                        color="success"
+                        elevation="6"
+                        :disabled="!canCall"
+                        @click="doCall"
+                    />
+                </v-col>
+
+                <v-col cols="4" class="text-center pa-1">
+                    <v-btn
+                        v-if="inputNumber.length > 0"
+                        variant="text"
+                        class="rounded-circle dial-btn"
+                        size="x-large"
+                        icon="mdi-backspace-outline"
+                        @pointerdown="startBackspace"
+                        @pointerup="endBackspace"
+                        @pointerleave="cancelBackspace"
+                        @pointercancel="cancelBackspace"
+                        @contextmenu.prevent
+                    />
+                </v-col>
+            </template>
+        </v-row>
+    </div>
 </template>
 
 <script setup lang="ts">
@@ -194,6 +205,7 @@ const keys = [
     { main: "#" },
 ];
 
+const showDialpad = ref(false);
 const isMuted = ref(false);
 const inputNumber = ref("");
 const callDuration = ref("00:00");
@@ -330,6 +342,13 @@ const stopTimer = () => {
 watch(
     status,
     (newVal, oldVal) => {
+        if (
+            ![CallStatus.IN_CALL, CallStatus.CALLING, CallStatus.HELD].includes(
+                newVal,
+            )
+        ) {
+            showDialpad.value = false;
+        }
         if (newVal === CallStatus.IN_CALL && oldVal !== CallStatus.IN_CALL) {
             startTimer();
         }

@@ -185,7 +185,7 @@
                     class="text-label-small text-grey text-center"
                 >
                     Gensokyo Telephony Network<br />
-                    v1.1.0
+                    v1.2.0
                 </v-list-item-title>
             </v-list-item>
         </v-list>
@@ -204,6 +204,10 @@ import SettingItem from "@/components/SettingItem.vue";
 import { AppLang } from "~/types/lang";
 import { useTheme } from "vuetify";
 const theme = useTheme();
+
+definePageMeta({
+    layout: "settings",
+});
 
 const { setLocale } = useI18n();
 const store = useCallStore();

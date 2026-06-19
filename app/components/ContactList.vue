@@ -23,6 +23,14 @@
                             v-model="newContact.number"
                             :label="$t('contacts.number')"
                             variant="underlined"
+                            :error-messages="
+                                isDuplicate
+                                    ? [
+                                          $t('contacts.duplicate') ||
+                                              'Duplicate number',
+                                      ]
+                                    : []
+                            "
                         />
                     </v-card-text>
                     <v-card-actions>
@@ -34,7 +42,11 @@
                         <v-btn
                             color="primary"
                             :text="$t('contacts.save')"
-                            :disabled="!newContact.name || !newContact.number"
+                            :disabled="
+                                !newContact.name ||
+                                !newContact.number ||
+                                isDuplicate
+                            "
                             @click="saveContact"
                         />
                     </v-card-actions>
@@ -99,6 +111,10 @@ const dialog = ref(false);
 const newContact = reactive({ name: "", number: "" });
 
 const emit = defineEmits(["call-triggered"]);
+
+const isDuplicate = computed(() => {
+    return !!store.getContactByNumber(newContact.number);
+});
 
 const saveContact = () => {
     if (newContact.name && newContact.number) {

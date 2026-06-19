@@ -1,9 +1,10 @@
 <template>
-    <div class="mt-1 ml-1">
+    <div class="d-flex align-center">
         <v-chip :color="barColor" variant="text" size="small">
             <v-icon icon="mdi-circle-small" start />
             {{ statusText }}
         </v-chip>
+        <v-icon :icon="signalIcon" size="x-small" class="ms-1" color="grey" />
     </div>
 </template>
 
@@ -44,21 +45,33 @@ const barColor = computed(() => {
     }
 });
 
+const signalIcon = computed(() => {
+    if (status.value === CallStatus.DISCONNECTED) return "mdi-signal-off";
+    if (status.value === CallStatus.IN_CALL) {
+        const q = sipController.networkQuality.value;
+        if (q >= 4) return "mdi-signal-cellular-3";
+        if (q === 3) return "mdi-signal-cellular-2";
+        if (q === 2) return "mdi-signal-cellular-1";
+        return "mdi-signal-cellular-outline";
+    }
+    return "mdi-signal";
+});
+
 const statusText = computed(() => {
-  switch (status.value) {
-    case CallStatus.CONNECTING:
-      return $t('status.connecting');
-    case CallStatus.DISCONNECTED:
-      return $t('status.disconnected');
-    case CallStatus.CALLING:
-      return $t('status.calling');
-    case CallStatus.IN_CALL:
-      return $t('status.in_call');
-    case CallStatus.HELD:
-      return $t('status.held');
-    default:
-      return $t('status.connected');
-  }
+    switch (status.value) {
+        case CallStatus.CONNECTING:
+            return $t("status.connecting");
+        case CallStatus.DISCONNECTED:
+            return $t("status.disconnected");
+        case CallStatus.CALLING:
+            return $t("status.calling");
+        case CallStatus.IN_CALL:
+            return $t("status.in_call");
+        case CallStatus.HELD:
+            return $t("status.held");
+        default:
+            return $t("status.connected");
+    }
 });
 </script>
 
