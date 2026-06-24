@@ -10,7 +10,7 @@ export const SIP_CONFIG = {
 export const BRANDING = {
   NAME: "Gensokyo Telephony Network",
   SHORT_NAME: "Gensokyo",
-  COLOR: "deep-purple-accent-3",
+  COLOR: "primary",
 };
 
 export const PRESET_CONTACTS = [

@@ -16,6 +16,22 @@
                 <NuxtLayout>
                     <NuxtPage />
                 </NuxtLayout>
+                <v-snackbar
+                    v-model="viewStore.snackbar"
+                    timeout="3000"
+                    color="primary"
+                    location="bottom"
+                    contained
+                >
+                    {{ viewStore.snackbarText }}
+                    <template #actions>
+                        <v-btn
+                            variant="text"
+                            icon="mdi-close"
+                            @click="viewStore.snackbar = false"
+                        />
+                    </template>
+                </v-snackbar>
             </v-card>
             <audio ref="globalAudioRef" style="display: none" autoplay />
         </v-container>
@@ -27,6 +43,7 @@ import { ref, onMounted } from "vue";
 import { useDisplay } from "vuetify";
 import StatusBar from "@/components/StatusBar.vue";
 import sipController from "@/utils/sipclient";
+import { useViewStore } from "@/stores/viewstore";
 
 useHead({
     title: "Gensokyo Phone",
@@ -42,6 +59,7 @@ const { mobile } = useDisplay();
 const isMobile = mobile;
 
 const globalAudioRef = ref<HTMLAudioElement | null>(null);
+const viewStore = useViewStore();
 
 onMounted(() => {
     if (globalAudioRef.value) {

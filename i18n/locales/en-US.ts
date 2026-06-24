@@ -6,6 +6,7 @@ export default {
     dial: "Keypad",
     contacts: "Contacts",
     history: "History",
+    messages: "Messages",
   },
   status: {
     connecting: "Connecting...",
@@ -37,6 +38,12 @@ export default {
     clear_confirm_title: "Clear History",
     clear_confirm_text: "Are you sure you want to clear all history?",
     clear: "Clear",
+  },
+  messages: {
+    no_records: "No messages",
+    new_message: "New Message",
+    type_message: "Type a message...",
+    start: "Start",
   },
   settings: {
     title: "Settings",

@@ -8,8 +8,12 @@
             <PhoneDialer class="pa-4" />
         </v-window-item>
 
+        <v-window-item value="messages" class="h-100">
+            <MessageList @call-triggered="switchToPhone" />
+        </v-window-item>
+
         <v-window-item value="contacts" class="h-100">
-            <ContactList @call-triggered="switchToPhone" />
+            <ContactList @call-triggered="switchToPhone" @message-triggered="switchToMessage" />
         </v-window-item>
 
         <v-window-item value="history" class="h-100">
@@ -22,11 +26,16 @@
 import PhoneDialer from "@/components/PhoneDialer.vue";
 import CallHistory from "@/components/CallHistory.vue";
 import ContactList from "@/components/ContactList.vue";
+import MessageList from "@/components/MessageList.vue";
 import { useViewStore } from "@/stores/viewstore";
 
 const viewStore = useViewStore();
 
 const switchToPhone = () => {
     viewStore.currentWindow = "phone";
+};
+
+const switchToMessage = () => {
+    viewStore.currentWindow = "messages";
 };
 </script>

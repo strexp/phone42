@@ -1,10 +1,12 @@
 // src/utils/sipController.ts
-import { SimpleUser } from "sip.js/lib/platform/web";
-import type { SimpleUserDelegate } from "sip.js/lib/platform/web";
 import { ref } from "vue";
 import { CallDirection, CallStatus } from "@/types/call";
 import soundGenerator from "./soundgen";
 import { useCallStore } from "@/stores/callstore";
+import { useMessageStore } from "@/stores/messagestore";
+import { useViewStore } from "@/stores/viewstore";
+import { PhoneUser, type PhoneUserDelegate } from "./phoneuser";
+import type { SessionDescriptionHandler } from "sip.js/lib/platform/web";
 
 export class SipController {
   public status = ref<CallStatus>(CallStatus.DISCONNECTED);
@@ -12,11 +14,44 @@ export class SipController {
   public currentTarget = ref<string>("");
   public networkQuality = ref<number>(4);
 
-  private user: SimpleUser | null = null;
+  private user: PhoneUser | null = null;
   private audioElement: HTMLAudioElement | null = null;
   private startTime: number = 0;
   private isInitialized = false;
   private statsInterval: number | null = null;
+
+  private isOutboundCall: boolean = false;
+
+  private reconnectTimer: number | null = null;
+  private reconnectAttempt: number = 0;
+  private intentionalDisconnect = false;
+
+  private scheduleReconnect() {
+    if (this.reconnectTimer) return;
+    const baseDelay = 3000;
+    let delay = baseDelay * Math.pow(2, this.reconnectAttempt);
+    if (delay > 30000) delay = 30000;
+
+    console.log(`Scheduling reconnect in ${delay}ms`);
+
+    this.reconnectTimer = window.setTimeout(() => {
+      this.reconnectTimer = null;
+      this.reconnectAttempt++;
+      if (this.audioElement) {
+        this.init(this.audioElement, true).catch((e) => {
+          console.error("Reconnect attempt failed", e);
+        });
+      }
+    }, delay);
+  }
+
+  private clearReconnect() {
+    if (this.reconnectTimer) {
+      clearTimeout(this.reconnectTimer);
+      this.reconnectTimer = null;
+    }
+    this.reconnectAttempt = 0;
+  }
 
   public async init(audioElem: HTMLAudioElement, force = false) {
     if (this.isInitialized && !force) return;
@@ -26,11 +61,49 @@ export class SipController {
     const store = useCallStore();
     const config = store.sipSettings;
 
-    const delegate: SimpleUserDelegate = {
+    const delegate: PhoneUserDelegate = {
+      onMessageReceived: (body, from) => {
+        const msgStore = useMessageStore();
+        const callStore = useCallStore();
+        msgStore.addMessage({
+          target: from,
+          body: body,
+          direction: "inbound",
+        });
+        const viewStore = useViewStore();
+        if (
+          viewStore.currentWindow !== "messages" ||
+          !viewStore.isChatOpen ||
+          viewStore.activeChatTarget !== from
+        ) {
+          const contact = callStore.getContactByNumber(from);
+          const name = contact ? contact.name : from;
+          viewStore.showToast(`${name}: ${body}`);
+        } else {
+          msgStore.markAsRead(from);
+        }
+      },
+      onCallReceived: (remoteUser: string) => {
+        this.currentTarget.value = remoteUser;
+        this.status.value = CallStatus.CALLING;
+        this.isOutboundCall = false;
+
+        const callStore = useCallStore();
+        if (callStore.settings.enableRingbackSound)
+          soundGenerator.startRingback();
+
+        if (this.user) {
+          this.user
+            .answer()
+            .catch((e) => console.error("Auto answer failed", e));
+        }
+      },
       onCallCreated: () => {
         this.status.value = CallStatus.CALLING;
-        const store = useCallStore();
-        if (store.settings.enableRingbackSound) soundGenerator.startRingback();
+        this.isOutboundCall = true;
+        const callStore = useCallStore();
+        if (callStore.settings.enableRingbackSound)
+          soundGenerator.startRingback();
       },
       onCallAnswered: () => {
         this.status.value = CallStatus.IN_CALL;
@@ -46,43 +119,50 @@ export class SipController {
         this.status.value = held ? CallStatus.HELD : CallStatus.IN_CALL;
       },
       onUnregistered: () => {
-        console.error("SIP Connect Failed");
+        console.error("SIP Unregistered");
         this.status.value = CallStatus.DISCONNECTED;
+        if (!this.intentionalDisconnect) this.scheduleReconnect();
+      },
+      onServerDisconnect: () => {
+        this.status.value = CallStatus.DISCONNECTED;
+        if (!this.intentionalDisconnect) this.scheduleReconnect();
       },
     };
 
     if (this.user) {
+      this.intentionalDisconnect = true;
       try {
+        await this.user.unregister();
         await this.user.disconnect();
       } catch {
         console.log("User disconnected.");
       }
+      this.intentionalDisconnect = false;
     }
 
-    this.user = new SimpleUser(config.server, {
-      delegate,
-      media: { remote: { audio: this.audioElement } },
+    this.user = new PhoneUser({
+      server: config.server,
       aor: `sip:${config.username}@${config.host}`,
-      userAgentOptions: {
-        displayName: config.displayName,
-        authorizationPassword: config.password,
-        authorizationUsername: config.username,
+      credentials: {
+        username: config.username,
+        password: config.password,
       },
+      displayName: config.displayName,
+      media: { remote: { audio: this.audioElement } },
+      delegate,
     });
 
     try {
       this.status.value = CallStatus.CONNECTING;
       await this.user.connect();
-      if (!this.user.isConnected) {
-        this.status.value = CallStatus.DISCONNECTED;
-        return;
-      }
       await this.user.register();
       this.status.value = CallStatus.CONNECTED;
       this.isInitialized = true;
+      this.clearReconnect();
     } catch (e) {
       console.error("SIP Connect Failed", e);
       this.status.value = CallStatus.DISCONNECTED;
+      this.scheduleReconnect();
     }
   }
 
@@ -122,6 +202,7 @@ export class SipController {
   }
 
   public async reconnect() {
+    this.clearReconnect();
     if (this.audioElement) {
       await this.init(this.audioElement, true);
     }
@@ -133,8 +214,8 @@ export class SipController {
       soundGenerator.playDTMF(tone);
     }
 
-    if (this.status.value === CallStatus.IN_CALL) {
-      this.user?.sendDTMF(tone);
+    if (this.status.value === CallStatus.IN_CALL && this.user) {
+      this.user.sendDTMF(tone).catch((e) => console.error("DTMF Failed", e));
       this.dtmfLog.value += tone;
     }
   }
@@ -152,7 +233,7 @@ export class SipController {
 
   public async toggleHold() {
     if (!this.user) return;
-    if (this.status.value === CallStatus.HELD) {
+    if (this.user.isHeld()) {
       await this.user.unhold();
     } else {
       await this.user.hold();
@@ -172,7 +253,9 @@ export class SipController {
       store.addRecord({
         target: this.currentTarget.value || "Unknown",
         duration: duration,
-        direction: CallDirection.OUTBOUND,
+        direction: this.isOutboundCall
+          ? CallDirection.OUTBOUND
+          : CallDirection.INBOUND,
       });
     }
 
@@ -185,9 +268,10 @@ export class SipController {
     this.networkQuality.value = 4;
     this.statsInterval = window.setInterval(async () => {
       if (!this.user || !this.user.session) return;
-      const session = this.user.session as any;
-      const pc: RTCPeerConnection =
-        session.sessionDescriptionHandler?.peerConnection;
+      const sdh = this.user.session
+        .sessionDescriptionHandler as SessionDescriptionHandler;
+      if (!sdh) return;
+      const pc: RTCPeerConnection | undefined = sdh.peerConnection;
       if (!pc) return;
 
       try {
@@ -214,7 +298,7 @@ export class SipController {
         const totalPackets = packetsLost + packetsReceived;
         const fractionLost = totalPackets > 0 ? packetsLost / totalPackets : 0;
 
-        // A simply MOS Calculation
+        // A simple MOS Calculation
         const effectiveLatency = rtt * 1000 + jitter * 1000 * 2 + 10;
         let rFactor = 93.2;
 
@@ -222,12 +306,12 @@ export class SipController {
         else rFactor -= (effectiveLatency - 120) / 10;
         rFactor -= fractionLost * 100 * 2.5;
 
-        let mos =
+        const mos =
           1 +
           0.035 * rFactor +
           0.000007 * rFactor * (rFactor - 60) * (100 - rFactor);
 
-        console.log(`MOS Calcuated: ${mos}`);
+        console.log(`MOS Calculated: ${mos}`);
 
         if (mos >= 4.0) this.networkQuality.value = 4;
         else if (mos >= 3.0) this.networkQuality.value = 3;
@@ -235,7 +319,8 @@ export class SipController {
         else if (mos >= 1.0) this.networkQuality.value = 1;
         else this.networkQuality.value = 0;
       } catch (e) {
-        // 忽略错误
+        console.log(e)
+        // ignore it!
       }
     }, 2000);
   }
@@ -255,6 +340,12 @@ export class SipController {
     const config = store.sipSettings;
     try {
       await this.user.message(`sip:${dest}@${config.host}`, body);
+      const msgStore = useMessageStore();
+      msgStore.addMessage({
+        target: dest,
+        body: body,
+        direction: "outbound",
+      });
     } catch (e) {
       console.error("Message Failed", e);
     }

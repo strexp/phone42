@@ -1,7 +1,6 @@
 <template>
     <v-card flat class="h-100 d-flex flex-column">
-        <v-card-title class="d-flex align-center py-3">
-            <v-icon start icon="mdi-history" class="me-2" />
+        <v-card-title class="d-flex align-center py-3 ml-2">
             {{ $t("history.title") }}
             <v-spacer />
             <v-dialog v-model="confirmDelete" max-width="300">
@@ -53,12 +52,11 @@
                 <v-list-item
                     v-for="item in store.history"
                     :key="item.id"
+                    lines="two"
                     @click="callContact(item.target)"
                 >
                     <template #prepend>
-                        <v-avatar color="primary" variant="tonal">
-                            <v-icon>mdi-phone-outgoing</v-icon>
-                        </v-avatar>
+                        <ContactAvatar icon="mdi-phone-outgoing" variant="tonal" />
                     </template>
 
                     <v-list-item-title>
@@ -72,7 +70,7 @@
                     </v-list-item-subtitle>
 
                     <template #append>
-                        <div class="text-caption font-weight-bold">
+                        <div class="text-label-large font-weight-medium">
                             {{ formatDuration(item.duration) }}
                         </div>
                     </template>
@@ -83,8 +81,11 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from "vue";
 import { useCallStore } from "@/stores/callstore";
 import sipclient from "@/utils/sipclient";
+import ContactAvatar from "@/components/ContactAvatar.vue";
+
 const store = useCallStore();
 const emit = defineEmits(["call-triggered"]);
 

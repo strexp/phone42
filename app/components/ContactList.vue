@@ -1,7 +1,6 @@
 <template>
     <v-card flat class="h-100 d-flex flex-column">
-        <v-card-title class="d-flex align-center py-3">
-            <v-icon start icon="mdi-account-group" class="me-2" />
+        <v-card-title class="d-flex align-center py-3 ml-2">
             {{ $t("contacts.title") }}
             <v-spacer />
             <v-dialog v-model="dialog" max-width="300">
@@ -60,15 +59,15 @@
             <v-list-item
                 v-for="contact in store.contacts"
                 :key="contact.id"
+                lines="two"
                 ripple
             >
                 <template #prepend>
-                    <v-avatar color="primary" variant="outlined">
-                        <v-img v-if="contact.avatar" :src="contact.avatar" />
-                        <span v-else class="text-title-large">{{
-                            contact.name[0]?.toUpperCase()
-                        }}</span>
-                    </v-avatar>
+                    <ContactAvatar 
+                        :name="contact.name" 
+                        :avatar="contact.avatar" 
+                        variant="outlined" 
+                    />
                 </template>
 
                 <v-list-item-title class="font-weight-medium">{{
@@ -79,6 +78,14 @@
                 }}</v-list-item-subtitle>
 
                 <template #append>
+                    <v-btn
+                        icon="mdi-message-text"
+                        size="small"
+                        color="primary"
+                        variant="tonal"
+                        class="me-1"
+                        @click="sendMessage(contact.number)"
+                    />
                     <v-btn
                         v-if="!contact.isPreset"
                         icon="mdi-trash-can-outline"
@@ -102,19 +109,26 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from "vue";
+import { ref, reactive, computed } from "vue";
 import { useCallStore } from "@/stores/callstore";
+import { useViewStore } from "@/stores/viewstore";
 import sipclient from "@/utils/sipclient";
+import ContactAvatar from "@/components/ContactAvatar.vue";
 
 const store = useCallStore();
 const dialog = ref(false);
 const newContact = reactive({ name: "", number: "" });
 
-const emit = defineEmits(["call-triggered"]);
+const viewStore = useViewStore();
+const emit = defineEmits(["call-triggered", "message-triggered"]);
 
 const isDuplicate = computed(() => {
     return !!store.getContactByNumber(newContact.number);
 });
+
+const sendMessage = (number: string) => {
+    viewStore.openMessageChat(number);
+};
 
 const saveContact = () => {
     if (newContact.name && newContact.number) {

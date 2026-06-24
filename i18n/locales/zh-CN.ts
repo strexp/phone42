@@ -5,7 +5,8 @@ export default {
   nav: {
     dial: "拨号",
     contacts: "联系人",
-    history: "记录",
+    history: "通话记录",
+    messages: "短信",
   },
   status: {
     connecting: "连接中...",
@@ -37,6 +38,12 @@ export default {
     clear_confirm_title: "清除记录",
     clear_confirm_text: "确定要清除所有通话记录吗？",
     clear: "清除",
+  },
+  messages: {
+    no_records: "暂无短信",
+    new_message: "新短信",
+    type_message: "输入短信内容...",
+    start: "发起",
   },
   settings: {
     title: "终端设置",

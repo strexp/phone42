@@ -16,7 +16,7 @@
             @save="onSave"
             @cancel="isOpen = false"
         >
-            <template #default="{ model: proxyModel, actions }">
+            <template #default="{ model: proxyModel, actions, save }">
                 <v-card :title="title">
                     <v-card-text>
                         <v-text-field
@@ -27,7 +27,7 @@
                             autofocus
                             @keyup.enter="
                                 proxyModel.value = proxyModel.value;
-                                actions.save();
+                                save();
                             "
                         />
                     </v-card-text>

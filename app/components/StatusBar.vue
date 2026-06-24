@@ -46,7 +46,7 @@ const barColor = computed(() => {
         case CallStatus.HELD:
             return "warning";
         case CallStatus.DISCONNECTED:
-            return "grey-darken-3";
+            return "";
         default:
             return BRANDING.COLOR;
     }
