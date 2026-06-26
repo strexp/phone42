@@ -30,7 +30,7 @@
                     }}</v-card-title>
                     <v-card-text>
                         <v-radio-group
-                            v-model="store.locale"
+                            :model-value="i18nLocale"
                             @update:model-value="changeLocale"
                         >
                             <v-radio
@@ -58,21 +58,21 @@
                 {{ $t("settings.theme") }}
             </v-list-subheader>
 
-            <v-list-item ripple @click="theme.toggle()">
+            <v-list-item ripple @click="isDarkTheme = !isDarkTheme">
                 <template #prepend>
-                    <v-icon icon="mdi-dialpad" color="grey" />
+                    <v-icon icon="mdi-brightness-6" color="grey" />
                 </template>
                 <v-list-item-title>{{
                     $t("settings.theme_dark")
                 }}</v-list-item-title>
                 <template #append>
                     <v-switch
-                        :value="theme.global.name.value == 'dark'"
+                        v-model="isDarkTheme"
                         class="mr-2"
                         color="primary"
                         hide-details
                         density="compact"
-                        @click.stop="theme.toggle()"
+                        @click.stop
                     />
                 </template>
             </v-list-item>
@@ -203,15 +203,23 @@ import sipController from "@/utils/sipclient";
 import SettingItem from "@/components/SettingItem.vue";
 import { AppLang } from "~/types/lang";
 import { useTheme } from "vuetify";
+
 const theme = useTheme();
 
 definePageMeta({
     layout: "settings",
 });
 
-const { setLocale } = useI18n();
+const { setLocale, locale: i18nLocale } = useI18n();
 const store = useCallStore();
 const showReconnectMsg = ref(false);
+
+const isDarkTheme = computed({
+    get: () => theme.global.name.value === "dark",
+    set: (val) => {
+        theme.global.name.value = val ? "dark" : "light";
+    },
+});
 
 const dialogs = reactive({
     lang: false,
@@ -224,11 +232,11 @@ const localeOptions = [
 
 const currentLocaleName = computed(
     () =>
-        localeOptions.find((o) => o.value === store.locale)?.title ||
-        store.locale,
+        localeOptions.find((o) => o.value === i18nLocale.value)?.title ||
+        i18nLocale.value,
 );
 
-const changeLocale = (val: AppLang | null) => {
+const changeLocale = (val: "en-US" | "zh-CN" | null) => {
     if (val) setLocale(val);
 };
 
