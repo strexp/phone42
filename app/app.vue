@@ -1,5 +1,6 @@
 <template>
     <v-app>
+        <VitePwaManifest />
         <v-container
             class="d-flex fill-height align-center justify-center pa-0"
             fluid
