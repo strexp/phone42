@@ -147,9 +147,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onUnmounted } from "vue";
+import { ref, computed, watch, onUnmounted, onMounted } from "vue";
 import sipclient from "@/utils/sipclient";
 import { useCallStore } from "@/stores/callstore";
+import { useViewStore } from "@/stores/viewstore";
 import { CallStatus } from "@/types/call";
 import Keypad from "./KeyPad.vue";
 
@@ -158,6 +159,7 @@ const isMuted = ref(false);
 const inputNumber = ref("");
 const callDuration = ref("00:00");
 const store = useCallStore();
+const viewStore = useViewStore();
 let timerInterval: number | null = null;
 let pressTimer: number | null = null;
 let isLongPress = false;
@@ -260,6 +262,53 @@ const stopTimer = () => {
     callDuration.value = "00:00";
 };
 
+const handleKeyDown = (e: KeyboardEvent) => {
+    if (viewStore.currentWindow !== "phone") return;
+
+    const validKeys = [
+        "0",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "*",
+        "#",
+        "+",
+    ];
+
+    const inCallInputState =
+        (isInCall.value || isCalling.value) && showDialpad.value;
+    const notCallInputState = !(isInCall.value || isCalling.value);
+
+    if (inCallInputState || notCallInputState) {
+        if (validKeys.includes(e.key)) {
+            if (!e.repeat) {
+                handleKeyPress(e.key);
+            }
+            e.preventDefault();
+        } else if (notCallInputState && e.key === "Backspace") {
+            if (inputNumber.value.length > 0) {
+                inputNumber.value = inputNumber.value.slice(0, -1);
+            }
+            e.preventDefault();
+        } else if (notCallInputState && e.key === "Enter") {
+            if (!e.repeat) {
+                doCall();
+            }
+            e.preventDefault();
+        }
+    }
+};
+
+onMounted(() => {
+    window.addEventListener("keydown", handleKeyDown);
+});
+
 watch(
     status,
     (newVal, oldVal) => {
@@ -286,6 +335,7 @@ watch(
 
 onUnmounted(() => {
     stopTimer();
+    window.removeEventListener("keydown", handleKeyDown);
 });
 </script>
 
