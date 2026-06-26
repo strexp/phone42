@@ -22,6 +22,7 @@ import sipController from "@/utils/sipclient";
 import { CallStatus } from "@/types/call";
 
 const time = ref("");
+const { t } = useI18n();
 
 onMounted(() => {
     const updateTime = () => {
@@ -67,17 +68,20 @@ const signalIcon = computed(() => {
 const statusText = computed(() => {
     switch (status.value) {
         case CallStatus.CONNECTING:
-            return $t("status.connecting");
+            return t("status.connecting");
         case CallStatus.DISCONNECTED:
-            return $t("status.disconnected");
+            return t("status.disconnected");
         case CallStatus.CALLING:
-            return $t("status.calling");
+            return t("status.calling");
         case CallStatus.IN_CALL:
-            return $t("status.in_call");
+            if (sipController.currentCodec.value) {
+                return `${t("status.in_call")} (${sipController.currentCodec.value})`;
+            }
+            return t("status.in_call");
         case CallStatus.HELD:
-            return $t("status.held");
+            return t("status.held");
         default:
-            return $t("status.connected");
+            return t("status.connected");
     }
 });
 </script>

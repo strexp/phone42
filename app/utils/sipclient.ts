@@ -13,6 +13,7 @@ export class SipController {
   public dtmfLog = ref<string>("");
   public currentTarget = ref<string>("");
   public networkQuality = ref<number>(4);
+  public currentCodec = ref<string>("");
 
   private user: PhoneUser | null = null;
   private audioElement: HTMLAudioElement | null = null;
@@ -243,6 +244,7 @@ export class SipController {
   private handleHangup() {
     soundGenerator.stopRingback();
     this.stopStats();
+    this.currentCodec.value = "";
 
     if (
       this.status.value === CallStatus.IN_CALL ||
@@ -281,6 +283,8 @@ export class SipController {
           packetsLost = 0,
           packetsReceived = 0;
 
+        let codecId = "";
+
         stats.forEach((report) => {
           if (
             report.type === "candidate-pair" &&
@@ -292,8 +296,18 @@ export class SipController {
             jitter = report.jitter || 0;
             packetsLost = report.packetsLost || 0;
             packetsReceived = report.packetsReceived || 0;
+            codecId = report.codecId;
           }
         });
+
+        if (codecId) {
+          const codecStat = stats.get(codecId);
+          if (codecStat && codecStat.mimeType) {
+            const mimeStr =
+              codecStat.mimeType.split("/")[1] || codecStat.mimeType;
+            this.currentCodec.value = mimeStr.toUpperCase();
+          }
+        }
 
         const totalPackets = packetsLost + packetsReceived;
         const fractionLost = totalPackets > 0 ? packetsLost / totalPackets : 0;
@@ -319,7 +333,7 @@ export class SipController {
         else if (mos >= 1.0) this.networkQuality.value = 1;
         else this.networkQuality.value = 0;
       } catch (e) {
-        console.log(e)
+        console.log(e);
         // ignore it!
       }
     }, 2000);
