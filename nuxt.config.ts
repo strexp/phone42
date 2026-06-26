@@ -18,11 +18,24 @@ export default defineNuxtConfig({
     },
   },
   pwa: {
+    strategies: "generateSW",
     registerType: "autoUpdate",
+    client: {
+      installPrompt: true,
+      periodicSyncForUpdates: 3600,
+    },
     workbox: {
       globPatterns: ["**/*.{js,css,html,png,svg,ico,woff,woff2}"],
       navigateFallback: "/",
       cleanupOutdatedCaches: true,
+      manifestTransforms: [
+        (manifestEntries) => {
+          const manifest = manifestEntries.filter(
+            (entry) => !entry.url.includes("404"),
+          );
+          return { manifest, warnings: [] };
+        },
+      ],
     },
     manifest: {
       name: "Gensokyo Phone",
