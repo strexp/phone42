@@ -9,8 +9,7 @@ class SoundGenerator {
   private ctx: AudioContext | null = null;
   private ringbackInterval: number | null = null;
   private activeOscillators: {
-    osc1: OscillatorNode;
-    osc2: OscillatorNode;
+    oscillators: OscillatorNode[];
     gainNode: GainNode;
   } | null = null;
 
@@ -26,59 +25,91 @@ class SoundGenerator {
     }
   }
 
-  // short play
-  playDTMF(key: string, duration = 0.2) {
+  private createTones(frequencies: number[]) {
     this.initCtx();
-    if (!this.ctx || !DTMF_FREQUENCIES[key]) return;
-    const [f1, f2] = DTMF_FREQUENCIES[key];
-    this.playTone(f1, f2, duration);
-  }
+    if (!this.ctx) return null;
 
-  // ui interact play start
-  startDTMF(key: string) {
-    this.initCtx();
-    if (!this.ctx || !DTMF_FREQUENCIES[key]) return;
-    this.stopDTMF();
-
-    const [f1, f2] = DTMF_FREQUENCIES[key];
-    const osc1 = this.ctx.createOscillator();
-    const osc2 = this.ctx.createOscillator();
     const gainNode = this.ctx.createGain();
-
-    osc1.frequency.value = f1;
-    osc2.frequency.value = f2;
-    osc1.connect(gainNode);
-    osc2.connect(gainNode);
     gainNode.connect(this.ctx.destination);
 
-    // smooth start
-    gainNode.gain.setValueAtTime(0, this.ctx.currentTime);
-    gainNode.gain.linearRampToValueAtTime(0.1, this.ctx.currentTime + 0.02);
+    const oscillators = frequencies
+      .filter((f) => f > 0)
+      .map((freq) => {
+        const osc = this.ctx!.createOscillator();
+        osc.frequency.value = freq;
+        osc.connect(gainNode);
+        return osc;
+      });
 
-    osc1.start();
-    osc2.start();
-    this.activeOscillators = { osc1, osc2, gainNode };
+    return { ctx: this.ctx, oscillators, gainNode };
   }
 
-  // ui interact play end
+  playDTMF(key: string, duration = 0.2) {
+    const freqs = DTMF_FREQUENCIES[key];
+    if (!freqs) return;
+
+    const nodes = this.createTones(freqs);
+    if (!nodes) return;
+    const { ctx, oscillators, gainNode } = nodes;
+
+    gainNode.gain.setValueAtTime(0.1, ctx.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(
+      0.001,
+      ctx.currentTime + duration,
+    );
+
+    oscillators.forEach((osc) => {
+      osc.start();
+      osc.stop(ctx.currentTime + duration);
+    });
+  }
+
+  startDTMF(key: string) {
+    const freqs = DTMF_FREQUENCIES[key];
+    if (!freqs) return;
+
+    this.stopDTMF();
+
+    const nodes = this.createTones(freqs);
+    if (!nodes) return;
+    const { ctx, oscillators, gainNode } = nodes;
+
+    gainNode.gain.setValueAtTime(0, ctx.currentTime);
+    gainNode.gain.linearRampToValueAtTime(0.1, ctx.currentTime + 0.02);
+
+    oscillators.forEach((osc) => osc.start());
+    this.activeOscillators = { oscillators, gainNode };
+  }
+
   stopDTMF() {
     if (!this.activeOscillators || !this.ctx) return;
-    const { osc1, osc2, gainNode } = this.activeOscillators;
+    const { oscillators, gainNode } = this.activeOscillators;
 
-    // smooth stop
     gainNode.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 0.02);
-    osc1.stop(this.ctx.currentTime + 0.03);
-    osc2.stop(this.ctx.currentTime + 0.03);
+    oscillators.forEach((osc) => osc.stop(this.ctx!.currentTime + 0.03));
+
     this.activeOscillators = null;
   }
 
   startRingback() {
-    this.initCtx();
-    if (!this.ctx) return;
     this.stopRingback();
 
     const playPulse = () => {
-      this.playTone(425, 0, 1.0, 0.1);
+      const nodes = this.createTones([425]);
+      if (!nodes) return;
+      const { ctx, oscillators, gainNode } = nodes;
+
+      const duration = 1.0;
+      gainNode.gain.setValueAtTime(0.1, ctx.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(
+        0.001,
+        ctx.currentTime + duration,
+      );
+
+      oscillators.forEach((osc) => {
+        osc.start();
+        osc.stop(ctx.currentTime + duration);
+      });
     };
 
     playPulse();
@@ -90,38 +121,6 @@ class SoundGenerator {
       clearInterval(this.ringbackInterval);
       this.ringbackInterval = null;
     }
-  }
-
-  private playTone(
-    freq1: number,
-    freq2: number,
-    duration: number,
-    volume = 0.1,
-  ) {
-    if (!this.ctx) return;
-    const osc1 = this.ctx.createOscillator();
-    const gainNode = this.ctx.createGain();
-
-    osc1.frequency.value = freq1;
-    osc1.connect(gainNode);
-
-    if (freq2 > 0) {
-      const osc2 = this.ctx.createOscillator();
-      osc2.frequency.value = freq2;
-      osc2.connect(gainNode);
-      osc2.start();
-      osc2.stop(this.ctx.currentTime + duration);
-    }
-
-    gainNode.connect(this.ctx.destination);
-    gainNode.gain.setValueAtTime(volume, this.ctx.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(
-      0.001,
-      this.ctx.currentTime + duration,
-    );
-
-    osc1.start();
-    osc1.stop(this.ctx.currentTime + duration);
   }
 }
 

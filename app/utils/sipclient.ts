@@ -14,6 +14,7 @@ export class SipController {
   public currentTarget = ref<string>("");
   public networkQuality = ref<number>(4);
   public currentCodec = ref<string>("");
+  public hasMicrophone = ref<boolean>(true);
 
   private user: PhoneUser | null = null;
   private audioElement: HTMLAudioElement | null = null;
@@ -88,6 +89,7 @@ export class SipController {
         this.currentTarget.value = remoteUser;
         this.status.value = CallStatus.CALLING;
         this.isOutboundCall = false;
+        this.hasMicrophone.value = this.user?.hasMicrophone ?? true;
 
         const callStore = useCallStore();
         if (callStore.settings.enableRingbackSound)
@@ -108,6 +110,7 @@ export class SipController {
       },
       onCallAnswered: () => {
         this.status.value = CallStatus.IN_CALL;
+        this.hasMicrophone.value = this.user?.hasMicrophone ?? true;
         soundGenerator.stopRingback();
         this.startTime = Date.now();
         this.dtmfLog.value = "";
@@ -178,6 +181,7 @@ export class SipController {
       this.currentTarget.value = dest;
       this.dtmfLog.value = "";
       await this.user.call(`sip:${dest}@${config.host}`);
+      this.hasMicrophone.value = this.user.hasMicrophone;
     } catch (e) {
       console.error("Call Failed", e);
     }

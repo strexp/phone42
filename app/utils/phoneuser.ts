@@ -13,7 +13,10 @@ import {
   type SessionInviteOptions,
   type UserAgentDelegate,
 } from "sip.js";
-import type { SessionDescriptionHandler, SessionDescriptionHandlerOptions } from "sip.js/lib/platform/web";
+import type {
+  SessionDescriptionHandler,
+  SessionDescriptionHandlerOptions,
+} from "sip.js/lib/platform/web";
 
 export interface PhoneUserDelegate {
   onCallCreated?: () => void;
@@ -52,6 +55,11 @@ export class PhoneUser {
 
   private _isHeld: boolean = false;
   private _isMuted: boolean = false;
+  private _hasMicrophone: boolean = true;
+
+  public get hasMicrophone(): boolean {
+    return this._hasMicrophone;
+  }
 
   constructor(options: PhoneUserOptions) {
     this.options = options;
@@ -97,6 +105,20 @@ export class PhoneUser {
       else if (state === RegistererState.Unregistered)
         this.delegate?.onUnregistered?.();
     });
+  }
+
+  private async checkAudioPermission(): Promise<boolean> {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      return false;
+    }
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      stream.getTracks().forEach((track) => track.stop());
+      return true;
+    } catch (e) {
+      console.warn("Microphone access denied or unavailable", e);
+      return false;
+    }
   }
 
   private setupSessionListeners(session: Session) {
@@ -160,15 +182,44 @@ export class PhoneUser {
       return Promise.reject(new Error("Invalid destination URI."));
     }
 
-    const options: InviterOptions = inviterOptions || {
-      sessionDescriptionHandlerOptions: {
-        constraints: { audio: true, video: false },
-      },
-    };
-
     this.session = new Inviter(this.userAgent, targetURI);
     this.setupSessionListeners(this.session);
     this.delegate?.onCallCreated?.();
+
+    const hasMic = await this.checkAudioPermission();
+    this._hasMicrophone = hasMic;
+
+    const options: InviterOptions = inviterOptions || {};
+    options.sessionDescriptionHandlerOptions = {
+      ...(options.sessionDescriptionHandlerOptions || {}),
+      constraints: { audio: hasMic, video: false },
+    };
+
+    if (!hasMic) {
+      options.sessionDescriptionHandlerModifiers = [
+        ...(options.sessionDescriptionHandlerModifiers || []),
+        async (sd: RTCSessionDescriptionInit) => {
+          const sdh = this.session
+            ?.sessionDescriptionHandler as SessionDescriptionHandler;
+          if (sdh && sdh.peerConnection) {
+            const pc = sdh.peerConnection;
+            const hasAudio = pc
+              .getTransceivers()
+              .some(
+                (t) =>
+                  t.receiver &&
+                  t.receiver.track &&
+                  t.receiver.track.kind === "audio",
+              );
+            if (!hasAudio) {
+              pc.addTransceiver("audio", { direction: "recvonly" });
+              return await pc.createOffer();
+            }
+          }
+          return sd;
+        },
+      ];
+    }
 
     await (this.session as Inviter).invite(options);
   }
@@ -179,10 +230,13 @@ export class PhoneUser {
     if (!this.session || !(this.session instanceof Invitation)) {
       return Promise.reject(new Error("No incoming session to answer."));
     }
-    const options: InvitationAcceptOptions = invitationAcceptOptions || {
-      sessionDescriptionHandlerOptions: {
-        constraints: { audio: true, video: false },
-      },
+    const hasMic = await this.checkAudioPermission();
+    this._hasMicrophone = hasMic;
+
+    const options: InvitationAcceptOptions = invitationAcceptOptions || {};
+    options.sessionDescriptionHandlerOptions = {
+      ...(options.sessionDescriptionHandlerOptions || {}),
+      constraints: { audio: hasMic, video: false },
     };
     return this.session.accept(options);
   }
@@ -216,7 +270,9 @@ export class PhoneUser {
   public async hold(): Promise<void> {
     if (!this.session) return Promise.reject(new Error("No session"));
     const options: SessionInviteOptions = {
-      sessionDescriptionHandlerOptions: { hold: true } as SessionDescriptionHandlerOptions,
+      sessionDescriptionHandlerOptions: {
+        hold: true,
+      } as SessionDescriptionHandlerOptions,
     };
     await this.session.invite(options);
     this._isHeld = true;
@@ -226,7 +282,9 @@ export class PhoneUser {
   public async unhold(): Promise<void> {
     if (!this.session) return Promise.reject(new Error("No session"));
     const options: SessionInviteOptions = {
-      sessionDescriptionHandlerOptions: { hold: false } as SessionDescriptionHandlerOptions,
+      sessionDescriptionHandlerOptions: {
+        hold: false,
+      } as SessionDescriptionHandlerOptions,
     };
     await this.session.invite(options);
     this._isHeld = false;

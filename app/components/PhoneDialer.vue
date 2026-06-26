@@ -82,6 +82,7 @@
                         icon="mdi-microphone-off"
                         size="x-large"
                         variant="outlined"
+                        :disabled="!sipclient.hasMicrophone.value"
                         :color="isMuted ? 'error' : ''"
                         @click="isMuted = sipclient.toggleMute()"
                     />
@@ -149,6 +150,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, onUnmounted, onMounted } from "vue";
 import sipclient from "@/utils/sipclient";
+import soundGenerator from "@/utils/soundgen";
 import { useCallStore } from "@/stores/callstore";
 import { useViewStore } from "@/stores/viewstore";
 import { CallStatus } from "@/types/call";
@@ -262,6 +264,9 @@ const stopTimer = () => {
     callDuration.value = "00:00";
 };
 
+let keyPressTimer: number | null = null;
+let isKeyLongPress = false;
+
 const handleKeyDown = (e: KeyboardEvent) => {
     if (viewStore.currentWindow !== "phone") return;
 
@@ -280,23 +285,33 @@ const handleKeyDown = (e: KeyboardEvent) => {
         "#",
         "+",
     ];
-
-    const inCallInputState =
+    const conditionInCall =
         (isInCall.value || isCalling.value) && showDialpad.value;
-    const notCallInputState = !(isInCall.value || isCalling.value);
+    const conditionNotInCall = !(isInCall.value || isCalling.value);
 
-    if (inCallInputState || notCallInputState) {
+    if (conditionInCall || conditionNotInCall) {
         if (validKeys.includes(e.key)) {
             if (!e.repeat) {
-                handleKeyPress(e.key);
+                isKeyLongPress = false;
+
+                if (store.settings.enableKeypadSound) {
+                    soundGenerator.startDTMF(e.key);
+                }
+
+                if (e.key === "0" && conditionNotInCall) {
+                    keyPressTimer = window.setTimeout(() => {
+                        isKeyLongPress = true;
+                        handleLongPress("+");
+                    }, 600);
+                }
             }
             e.preventDefault();
-        } else if (notCallInputState && e.key === "Backspace") {
-            if (inputNumber.value.length > 0) {
-                inputNumber.value = inputNumber.value.slice(0, -1);
+        } else if (conditionNotInCall && e.key === "Backspace") {
+            if (!e.repeat) {
+                startBackspace();
             }
             e.preventDefault();
-        } else if (notCallInputState && e.key === "Enter") {
+        } else if (conditionNotInCall && e.key === "Enter") {
             if (!e.repeat) {
                 doCall();
             }
@@ -305,8 +320,49 @@ const handleKeyDown = (e: KeyboardEvent) => {
     }
 };
 
+const handleKeyUp = (e: KeyboardEvent) => {
+    if (viewStore.currentWindow !== "phone") return;
+
+    const validKeys = [
+        "0",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "*",
+        "#",
+        "+",
+    ];
+    const conditionA = (isInCall.value || isCalling.value) && showDialpad.value;
+    const conditionB = !(isInCall.value || isCalling.value);
+
+    if (conditionA || conditionB) {
+        if (validKeys.includes(e.key)) {
+            clearTimeout(keyPressTimer as number);
+
+            if (store.settings.enableKeypadSound) {
+                soundGenerator.stopDTMF();
+            }
+
+            if (!isKeyLongPress) {
+                handleKeyPress(e.key);
+            }
+            e.preventDefault();
+        } else if (conditionB && e.key === "Backspace") {
+            endBackspace();
+            e.preventDefault();
+        }
+    }
+};
+
 onMounted(() => {
     window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
 });
 
 watch(
