@@ -63,10 +63,10 @@
                 ripple
             >
                 <template #prepend>
-                    <ContactAvatar 
-                        :name="contact.name" 
-                        :avatar="contact.avatar" 
-                        variant="outlined" 
+                    <ContactAvatar
+                        :name="contact.name"
+                        :avatar="contact.avatar"
+                        variant="outlined"
                     />
                 </template>
 
@@ -79,14 +79,6 @@
 
                 <template #append>
                     <v-btn
-                        icon="mdi-message-text"
-                        size="small"
-                        color="primary"
-                        variant="tonal"
-                        class="me-1"
-                        @click="sendMessage(contact.number)"
-                    />
-                    <v-btn
                         v-if="!contact.isPreset"
                         icon="mdi-trash-can-outline"
                         size="small"
@@ -94,6 +86,14 @@
                         color="grey"
                         class="me-1"
                         @click.stop="store.removeContact(contact.id)"
+                    />
+                    <v-btn
+                        icon="mdi-message-text"
+                        size="small"
+                        color="primary"
+                        variant="tonal"
+                        class="me-1"
+                        @click="sendMessage(contact.number)"
                     />
                     <v-btn
                         icon="mdi-phone"
