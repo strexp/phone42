@@ -43,6 +43,12 @@ export default defineNuxtConfig({
       description: "WebRTC Client for Gensokyo Telephony Network",
       theme_color: "#ffffff",
       display: "standalone",
+      protocol_handlers: [
+        {
+          protocol: "tel",
+          url: "/?dial=%s",
+        },
+      ],
       icons: [
         {
           src: "web-app-manifest-192x192.png",
