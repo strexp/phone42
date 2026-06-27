@@ -76,6 +76,7 @@
                                 <v-checkbox-btn
                                     :model-value="isActive"
                                     :disabled="isAlreadyImported(item.number)"
+                                    style="pointer-events: none"
                                 />
                             </v-list-item-action>
                         </template>

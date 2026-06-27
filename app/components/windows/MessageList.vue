@@ -7,8 +7,8 @@
 
 <script setup lang="ts">
 import { useViewStore } from "@/stores/viewstore";
-import MessageConversations from "./MessageConversations.vue";
-import MessageChat from "./MessageChat.vue";
+import MessageConversations from "./message/MessageConversations.vue";
+import MessageChat from "./message/MessageChat.vue";
 
 const viewStore = useViewStore();
 defineEmits(["call-triggered"]);

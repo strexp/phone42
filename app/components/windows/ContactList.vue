@@ -80,6 +80,8 @@
 import { ref } from "vue";
 import { useCallStore } from "@/stores/callstore";
 import { useViewStore } from "@/stores/viewstore";
+import ContactAddDialog from "./contact/ContactAddDialog.vue";
+import ContactImportDialog from "./contact/ContactImportDialog.vue";
 import sipclient from "@/utils/sipclient";
 
 const store = useCallStore();

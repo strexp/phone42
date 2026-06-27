@@ -10,6 +10,8 @@
 
 <script setup lang="ts">
 import { useDisplay } from "vuetify";
+import MobileStatus from "~/components/nav/MobileStatus.vue";
+import BottomNav from "~/components/nav/BottomNav.vue";
 
 const { mobile } = useDisplay();
 const isMobile = mobile;

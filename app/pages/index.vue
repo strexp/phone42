@@ -28,10 +28,10 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import PhoneDialer from "@/components/PhoneDialer.vue";
-import CallHistory from "@/components/CallHistory.vue";
-import ContactList from "@/components/ContactList.vue";
-import MessageList from "@/components/MessageList.vue";
+import PhoneDialer from "@/components/windows/PhoneDialer.vue";
+import CallHistory from "@/components/windows/CallHistory.vue";
+import ContactList from "@/components/windows/ContactList.vue";
+import MessageList from "@/components/windows/MessageList.vue";
 import { useViewStore } from "@/stores/viewstore";
 import sipController from "@/utils/sipclient";
 import { CallStatus } from "@/types/call";

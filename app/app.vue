@@ -42,7 +42,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import { useDisplay } from "vuetify";
-import StatusBar from "@/components/StatusBar.vue";
+import StatusBar from "./components/nav/StatusBar.vue";
 import sipController from "@/utils/sipclient";
 import { useViewStore } from "@/stores/viewstore";
 import { useCallStore } from "@/stores/callstore";

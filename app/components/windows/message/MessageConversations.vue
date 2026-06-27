@@ -54,7 +54,7 @@
                     </div>
                 </template>
             </v-list-item>
-            <div class="text-label-small text-grey text-center">
+            <div class="text-label-small text-grey text-center mt-1">
                 {{ $t("messages.reach_warning") }}
             </div>
         </v-list>
