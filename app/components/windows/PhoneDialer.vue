@@ -46,11 +46,16 @@ import Keypad from "./dialer/KeyPad.vue";
 import DialerDisplay from "./dialer/DialerDisplay.vue";
 import DialerControls from "./dialer/DialerControls.vue";
 import { useDialerKeyboard } from "@/composables/useDialerKeyboard";
+import { useViewStore } from "@/stores/viewstore";
 
 const showDialpad = ref(false);
 const isMuted = ref(false);
 const inputNumber = ref("");
 const callDuration = ref("00:00");
+
+const viewStore = useViewStore();
+const route = useRoute();
+const router = useRouter();
 
 let timerInterval: number | null = null;
 let pressTimer: number | null = null;
@@ -158,6 +163,25 @@ useDialerKeyboard({
     onBackspaceEnd: endBackspace,
     onCall: doCall,
 });
+
+watch(
+    () => route.query.dial,
+    (newDial) => {
+        if (newDial) {
+            const dialStr = String(newDial);
+            const cleanText = dialStr.replace(/[^0-9*#+]/g, "");
+            if (cleanText) {
+                inputNumber.value = cleanText.slice(0, 20);
+                viewStore.currentWindow = "phone";
+            }
+
+            const newQuery = { ...route.query };
+            delete newQuery.dial;
+            router.replace({ query: newQuery });
+        }
+    },
+    { immediate: true },
+);
 
 watch(
     status,
