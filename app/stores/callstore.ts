@@ -79,11 +79,13 @@ export const useCallStore = defineStore("call", () => {
 
   const updateYpPhonebook = async () => {
     try {
-      const res = await fetch("https://yp.dn42/api/public/phonebook");
+      const res = await fetch(
+        "https://yp.dn42/api/public/phonebook/download?format=json",
+      );
       if (res.ok) {
         const data = await res.json();
-        if (data && data.items) {
-          ypPhonebook.value = data.items;
+        if (data) {
+          ypPhonebook.value = data;
           ypLastUpdate.value = Date.now();
           return true;
         }
