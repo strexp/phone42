@@ -31,6 +31,13 @@ export default {
     cancel: "Cancel",
     save: "Save",
     duplicate: "Duplicate number",
+    yp_import: "Import from yp.dn42",
+    import: "Import",
+    yp_empty: "No contacts found in yp.dn42",
+    yp_update_success: "yp.dn42 phonebook updated",
+    import_success: "Contacts imported",
+    search: "Search",
+    no_results: "No results found",
   },
   history: {
     title: "Call History",
@@ -44,6 +51,8 @@ export default {
     new_message: "New Message",
     type_message: "Type a message...",
     start: "Start",
+    reach_warning:
+      "This WebPhone does not guarantee the reliable receipt of text messages.",
   },
   settings: {
     title: "Settings",
@@ -57,6 +66,9 @@ export default {
     server_hint: "WebSocket URL",
     domain: "Domain",
     domain_hint: "SIP Domain / Host",
+    contacts: "Contacts",
+    auto_update_yp: "Auto update yp.dn42",
+    auto_update_yp_hint: "Regularly fetch from yp.dn42",
     sound: "Sound",
     keypad_tone: "Keypad Tone",
     keypad_tone_hint: "Play DTMF tones",

@@ -3,55 +3,23 @@
         <v-card-title class="d-flex align-center py-3 ml-2">
             {{ $t("contacts.title") }}
             <v-spacer />
-            <v-dialog v-model="dialog" max-width="300">
-                <template #activator="{ props }">
-                    <v-btn
-                        icon="mdi-account-plus"
-                        variant="text"
-                        v-bind="props"
-                    />
-                </template>
-                <v-card :title="$t('contacts.add')">
-                    <v-card-text>
-                        <v-text-field
-                            v-model="newContact.name"
-                            :label="$t('contacts.name')"
-                            variant="underlined"
-                        />
-                        <v-text-field
-                            v-model="newContact.number"
-                            :label="$t('contacts.number')"
-                            variant="underlined"
-                            :error-messages="
-                                isDuplicate
-                                    ? [
-                                          $t('contacts.duplicate') ||
-                                              'Duplicate number',
-                                      ]
-                                    : []
-                            "
-                        />
-                    </v-card-text>
-                    <v-card-actions>
-                        <v-spacer />
-                        <v-btn
-                            :text="$t('contacts.cancel')"
-                            @click="dialog = false"
-                        />
-                        <v-btn
-                            color="primary"
-                            :text="$t('contacts.save')"
-                            :disabled="
-                                !newContact.name ||
-                                !newContact.number ||
-                                isDuplicate
-                            "
-                            @click="saveContact"
-                        />
-                    </v-card-actions>
-                </v-card>
-            </v-dialog>
+
+            <v-btn
+                icon="mdi-cloud-download"
+                variant="text"
+                class="mr-2"
+                @click="ypDialogOpen = true"
+            />
+
+            <v-btn
+                icon="mdi-account-plus"
+                variant="text"
+                @click="addDialogOpen = true"
+            />
         </v-card-title>
+
+        <ContactImportDialog v-model="ypDialogOpen" />
+        <ContactAddDialog v-model="addDialogOpen" />
 
         <v-divider />
 
@@ -109,34 +77,21 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed } from "vue";
+import { ref } from "vue";
 import { useCallStore } from "@/stores/callstore";
 import { useViewStore } from "@/stores/viewstore";
 import sipclient from "@/utils/sipclient";
-import ContactAvatar from "@/components/ContactAvatar.vue";
 
 const store = useCallStore();
-const dialog = ref(false);
-const newContact = reactive({ name: "", number: "" });
-
 const viewStore = useViewStore();
-const emit = defineEmits(["call-triggered", "message-triggered"]);
 
-const isDuplicate = computed(() => {
-    return !!store.getContactByNumber(newContact.number);
-});
+const ypDialogOpen = ref(false);
+const addDialogOpen = ref(false);
+
+const emit = defineEmits(["call-triggered", "message-triggered"]);
 
 const sendMessage = (number: string) => {
     viewStore.openMessageChat(number);
-};
-
-const saveContact = () => {
-    if (newContact.name && newContact.number) {
-        store.addContact(newContact.name, newContact.number);
-        newContact.name = "";
-        newContact.number = "";
-        dialog.value = false;
-    }
 };
 
 const callContact = (number: string) => {

@@ -119,6 +119,40 @@
             <v-divider class="my-3" />
 
             <v-list-subheader class="text-primary font-weight-bold">
+                {{ $t("settings.contacts") }}
+            </v-list-subheader>
+
+            <v-list-item
+                ripple
+                @click="
+                    store.settings.autoUpdatePhonebook =
+                        !store.settings.autoUpdatePhonebook
+                "
+            >
+                <template #prepend>
+                    <v-icon icon="mdi-book-sync" color="grey" />
+                </template>
+                <v-list-item-title>{{
+                    $t("settings.auto_update_yp")
+                }}</v-list-item-title>
+                <v-list-item-subtitle>{{
+                    $t("settings.auto_update_yp_hint")
+                }}</v-list-item-subtitle>
+                <template #append>
+                    <v-switch
+                        v-model="store.settings.autoUpdatePhonebook"
+                        class="mr-2"
+                        color="primary"
+                        hide-details
+                        density="compact"
+                        @click.stop
+                    />
+                </template>
+            </v-list-item>
+
+            <v-divider class="my-3" />
+
+            <v-list-subheader class="text-primary font-weight-bold">
                 {{ $t("settings.sound") }}
             </v-list-subheader>
 

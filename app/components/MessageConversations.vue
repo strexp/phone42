@@ -26,9 +26,9 @@
                 @click="openChat(conv.target)"
             >
                 <template #prepend>
-                    <ContactAvatar 
-                        :name="callStore.getContactByNumber(conv.target)?.name" 
-                        variant="tonal" 
+                    <ContactAvatar
+                        :name="callStore.getContactByNumber(conv.target)?.name"
+                        variant="tonal"
                     />
                 </template>
                 <v-list-item-title>
@@ -54,6 +54,9 @@
                     </div>
                 </template>
             </v-list-item>
+            <div class="text-label-small text-grey text-center">
+                {{ $t("messages.reach_warning") }}
+            </div>
         </v-list>
 
         <v-dialog v-model="showNewMessage" max-width="320">

@@ -6,4 +6,12 @@ interface Contact {
   isPreset?: boolean;
 }
 
-export type { Contact };
+interface YpContact {
+  mnt: string;
+  number: string;
+  name: string;
+  type: string;
+  language: string;
+}
+
+export type { Contact, YpContact };

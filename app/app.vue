@@ -45,6 +45,7 @@ import { useDisplay } from "vuetify";
 import StatusBar from "@/components/StatusBar.vue";
 import sipController from "@/utils/sipclient";
 import { useViewStore } from "@/stores/viewstore";
+import { useCallStore } from "@/stores/callstore";
 
 useHead({
     title: "Gensokyo Phone",
@@ -61,10 +62,22 @@ const isMobile = mobile;
 
 const globalAudioRef = ref<HTMLAudioElement | null>(null);
 const viewStore = useViewStore();
+const callStore = useCallStore();
+const { t } = useI18n();
 
-onMounted(() => {
+onMounted(async () => {
     if (globalAudioRef.value) {
         sipController.init(globalAudioRef.value);
+    }
+
+    if (callStore.settings.autoUpdatePhonebook) {
+        const ONE_DAY = 24 * 60 * 60 * 1000;
+        if (Date.now() - callStore.ypLastUpdate > ONE_DAY) {
+            const success = await callStore.updateYpPhonebook();
+            if (success) {
+                viewStore.showToast(t("contacts.yp_update_success"));
+            }
+        }
     }
 });
 </script>
