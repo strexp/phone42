@@ -29,6 +29,20 @@ export class SipController {
   private reconnectAttempt: number = 0;
   private intentionalDisconnect = false;
 
+  constructor() {
+    if (typeof window !== "undefined") {
+      window.addEventListener("pagehide", () => this.cleanupBeforeUnload());
+      window.addEventListener("beforeunload", () => this.cleanupBeforeUnload());
+    }
+  }
+
+  private cleanupBeforeUnload() {
+    this.intentionalDisconnect = true;
+    if (this.user) {
+      this.user.disconnect().catch(() => {});
+    }
+  }
+
   private scheduleReconnect() {
     if (this.reconnectTimer) return;
     const baseDelay = 3000;
