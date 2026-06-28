@@ -6,6 +6,8 @@
         :touch="isCallActive ? false : undefined"
     >
         <v-window-item value="phone" class="h-100">
+            <MobileStatus v-if="isMobile" />
+
             <PhoneDialer class="pa-4" />
         </v-window-item>
 
@@ -35,6 +37,11 @@ import MessageList from "@/components/windows/MessageList.vue";
 import { useViewStore } from "@/stores/viewstore";
 import sipController from "@/utils/sipclient";
 import { CallStatus } from "@/types/call";
+import { useDisplay } from "vuetify";
+import MobileStatus from "~/components/nav/MobileStatus.vue";
+
+const { mobile } = useDisplay();
+const isMobile = mobile;
 
 const viewStore = useViewStore();
 
