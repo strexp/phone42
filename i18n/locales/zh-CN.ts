@@ -68,6 +68,8 @@ export default {
     contacts: "联系人设置",
     auto_update_yp: "自动更新 yp.dn42 通讯录",
     auto_update_yp_hint: "定期从 yp.dn42 获取最新联系人",
+    t9_dialer: "T9 拨号",
+    t9_dialer_hint: "使用拨号盘搜索联系人",
     sound: "声音设置",
     keypad_tone: "按键音",
     keypad_tone_hint: "拨号时播放 DTMF 音",

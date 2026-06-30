@@ -24,15 +24,36 @@
                 @pointercancel="cancelPress"
                 @contextmenu.prevent
             >
-                <div class="d-flex flex-column align-center">
-                    <span v-if="key.long"> &nbsp; </span>
-                    <span class="text-h5 font-weight-bold">{{ key.main }}</span>
+                <div
+                    class="d-flex flex-column align-center justify-center mt-1"
+                >
+                    <span
+                        class="text-h5 font-weight-bold"
+                        style="line-height: 1"
+                    >
+                        {{ key.main }}
+                    </span>
+
                     <span
                         v-if="key.long"
-                        class="text-caption text-grey text-none"
-                        style="margin-top: -4px"
+                        class="text-grey font-weight-bold text-none text-label-small"
+                        style="margin-top: 4px"
                     >
                         {{ key.long }}
+                    </span>
+                    <span
+                        v-else-if="store.settings.enableT9Dialer && key.letters"
+                        class="text-grey font-weight-bold text-none text-label-small"
+                        style="margin-top: 4px"
+                    >
+                        {{ key.letters }}
+                    </span>
+                    <span
+                        v-else
+                        class="text-grey font-weight-bold text-none text-label-small"
+                        style="margin-top: 4px"
+                    >
+                        &nbsp;
                     </span>
                 </div>
             </v-btn>
@@ -49,14 +70,14 @@ const emit = defineEmits(["key-press", "key-long-press"]);
 
 const keys = [
     { main: "1" },
-    { main: "2" },
-    { main: "3" },
-    { main: "4" },
-    { main: "5" },
-    { main: "6" },
-    { main: "7" },
-    { main: "8" },
-    { main: "9" },
+    { main: "2", letters: "ABC" },
+    { main: "3", letters: "DEF" },
+    { main: "4", letters: "GHI" },
+    { main: "5", letters: "JKL" },
+    { main: "6", letters: "MNO" },
+    { main: "7", letters: "PQRS" },
+    { main: "8", letters: "TUV" },
+    { main: "9", letters: "WXYZ" },
     { main: "*" },
     { main: "0", long: "+" },
     { main: "#" },

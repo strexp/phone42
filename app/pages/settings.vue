@@ -150,6 +150,34 @@
                 </template>
             </v-list-item>
 
+            <v-list-item
+                ripple
+                @click="
+                    store.settings.enableT9Dialer =
+                        !store.settings.enableT9Dialer
+                "
+            >
+                <template #prepend>
+                    <v-icon icon="mdi-dialpad" color="grey" />
+                </template>
+                <v-list-item-title>{{
+                    $t("settings.t9_dialer")
+                }}</v-list-item-title>
+                <v-list-item-subtitle>{{
+                    $t("settings.t9_dialer_hint")
+                }}</v-list-item-subtitle>
+                <template #append>
+                    <v-switch
+                        v-model="store.settings.enableT9Dialer"
+                        class="mr-2"
+                        color="primary"
+                        hide-details
+                        density="compact"
+                        @click.stop
+                    />
+                </template>
+            </v-list-item>
+
             <v-divider class="my-3" />
 
             <v-list-subheader class="text-primary font-weight-bold">

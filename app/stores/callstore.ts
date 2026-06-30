@@ -14,6 +14,7 @@ export const useCallStore = defineStore("call", () => {
     enableKeypadSound: true,
     enableRingbackSound: true,
     autoUpdatePhonebook: true,
+    enableT9Dialer: false,
   });
 
   const ypPhonebook = ref<YpContact[]>([]);
@@ -107,6 +108,10 @@ export const useCallStore = defineStore("call", () => {
         settings.value = { ...settings.value, ...data.settings };
         if (typeof settings.value.autoUpdatePhonebook === "undefined") {
           settings.value.autoUpdatePhonebook = true;
+        }
+
+        if (typeof settings.value.enableT9Dialer === "undefined") {
+          settings.value.enableT9Dialer = false;
         }
 
         if (data.sipSettings) {

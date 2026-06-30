@@ -12,6 +12,12 @@
             @display-click="handleDisplayClick"
         />
 
+        <T9MatchList
+            v-if="t9Matches.length > 0 && !(isInCall || isCalling)"
+            :matches="t9Matches"
+            @select="handleT9Select"
+        />
+
         <Keypad
             v-show="!(isInCall || isCalling) || showDialpad"
             :disabled="status === CallStatus.DISCONNECTED"
@@ -45,8 +51,11 @@ import { CallStatus } from "@/types/call";
 import Keypad from "./dialer/KeyPad.vue";
 import DialerDisplay from "./dialer/DialerDisplay.vue";
 import DialerControls from "./dialer/DialerControls.vue";
+import T9MatchList from "./dialer/T9MatchList.vue";
 import { useDialerKeyboard } from "@/composables/useDialerKeyboard";
 import { useViewStore } from "@/stores/viewstore";
+import { useCallStore } from "@/stores/callstore";
+import { searchT9 } from "@/utils/t9";
 
 const showDialpad = ref(false);
 const isMuted = ref(false);
@@ -54,6 +63,7 @@ const inputNumber = ref("");
 const callDuration = ref("00:00");
 
 const viewStore = useViewStore();
+const callStore = useCallStore();
 const route = useRoute();
 const router = useRouter();
 
@@ -70,6 +80,15 @@ const isCalling = computed(() => status.value === CallStatus.CALLING);
 const canCall = computed(
     () => status.value === CallStatus.CONNECTED && inputNumber.value.length > 0,
 );
+
+const t9Matches = computed(() => {
+    if (!callStore.settings.enableT9Dialer || !inputNumber.value) return [];
+    return searchT9(callStore.contacts, inputNumber.value);
+});
+
+const handleT9Select = (number: string) => {
+    inputNumber.value = number;
+};
 
 const triggerHaptic = (pattern: number | number[] = 15) => {
     navigator.vibrate?.(pattern);

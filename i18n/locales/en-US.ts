@@ -69,6 +69,8 @@ export default {
     contacts: "Contacts",
     auto_update_yp: "Auto update yp.dn42",
     auto_update_yp_hint: "Regularly fetch from yp.dn42",
+    t9_dialer: "T9 Dialer",
+    t9_dialer_hint: "Search contacts using dialpad",
     sound: "Sound",
     keypad_tone: "Keypad Tone",
     keypad_tone_hint: "Play DTMF tones",
