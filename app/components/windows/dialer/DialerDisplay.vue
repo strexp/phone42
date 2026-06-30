@@ -37,6 +37,12 @@
                 class="text-headline-large font-weight-bold text-truncate"
                 style="max-width: 100%; letter-spacing: 2px"
             >
+                <span v-if="/^042.*/.test(inputNumber)" class="text-grey text-headline-small">
+                    +
+                </span>
+                <span v-if="/^4.{4}.*/.test(inputNumber)" class="text-grey text-headline-small">
+                    +042
+                </span>
                 {{ inputNumber }}
             </span>
             <span
