@@ -41,6 +41,12 @@
             @backspace-end="endBackspace"
             @backspace-cancel="cancelBackspace"
         />
+
+        <USSDDialog
+            v-model="showUssdDialog"
+            :title="ussdTitle"
+            :text="ussdMessage"
+        />
     </div>
 </template>
 
@@ -52,15 +58,21 @@ import Keypad from "./dialer/KeyPad.vue";
 import DialerDisplay from "./dialer/DialerDisplay.vue";
 import DialerControls from "./dialer/DialerControls.vue";
 import T9MatchList from "./dialer/T9MatchList.vue";
+import USSDDialog from "./dialer/USSDDialog.vue";
 import { useDialerKeyboard } from "@/composables/useDialerKeyboard";
 import { useViewStore } from "@/stores/viewstore";
 import { useCallStore } from "@/stores/callstore";
 import { searchT9 } from "@/utils/t9";
+import { checkUSSD } from "@/utils/ussd";
 
 const showDialpad = ref(false);
 const isMuted = ref(false);
 const inputNumber = ref("");
 const callDuration = ref("00:00");
+
+const showUssdDialog = ref(false);
+const ussdTitle = ref("");
+const ussdMessage = ref("");
 
 const viewStore = useViewStore();
 const callStore = useCallStore();
@@ -181,6 +193,18 @@ useDialerKeyboard({
     onBackspaceStart: startBackspace,
     onBackspaceEnd: endBackspace,
     onCall: doCall,
+});
+
+watch(inputNumber, (newVal) => {
+    const res = checkUSSD(newVal);
+    if (res.isUSSD) {
+        ussdTitle.value = res.title || "";
+        ussdMessage.value = res.message || "";
+        showUssdDialog.value = true;
+        if (res.clearInput) {
+            inputNumber.value = "";
+        }
+    }
 });
 
 watch(
